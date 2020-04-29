@@ -1,0 +1,22 @@
+wh(x, y = x) {width: x; height: y}
+minwh(x, y = x) {min-width: x; min-height: y}
+maxwh(x, y = x) {max-width: x; max-height: y}
+circle(r) {wh(r); border-radius: r}
+flexXY(x, y = x) {display: flex; justify-content: x; align-items: y}
+absPos(t, r = t, b = t, l = t){position: absolute; top: t; right: r; bottom: b; left: l}
+
+*, *:before, *:after {
+	box-sizing: border-box
+}
+
+.vue-todo {
+	flexXY(center, start)
+	flex-direction: column
+
+	.todo-item {
+		wh(400px, 32px)
+		flexXY(space-between, center)
+		border: 1px solid #ddd
+		border-radius: 4em
+	}
+}

@@ -41,42 +41,40 @@ function assignSlotChildren(component) {
 	component.slotChildren = Object.freeze(toVNodes(component.$createElement, this.childNodes))
 }
 
-function mapPropsFromHost(host, props) {
+function mapPropsFromHost(host) {
 	const propsData = {}
-	for(let propName in props) propsData[propName] = host[propName]
+	host._propKeys.forEach((key) => propsData[key] = host[key])
 	return propsData
 }
 
-function vueify(defn: ComponentDefn, props: any, shadowStyles?: string[]) {
-	return render((host) => {
-		return (host, target) => {
-			/* define proxies for custom events */
-			const proxies = defn.events && Object.keys(defn.events).reduce((proxies, key) => {
-				proxies[key] = (detail) => dispatch(host, key, {detail, bubbles: true})
-				return proxies
-			}, {})
+function vueify(defn: ComponentDefn, shadowStyles?: string[]) {
+	return render((host: any) => {
+		const propsData = mapPropsFromHost(host)
 
-			const style = shadowStyles?.join("\n/*------*/\n")
+		/* define proxies for custom events */
+		const proxies = defn.events && Object.keys(defn.events).reduce((proxies, key) => {
+			proxies[key] = (detail) => dispatch(host, key, {detail, bubbles: true})
+			return proxies
+		}, {})
 
+		return (host: any, target) => {
 			const wrapper = new Vue({
 				name: 'shadow-root',
 				data() {
 					return {
-						props: mapPropsFromHost(host, props),
+						props: propsData,
 						slotChildren: [],
 					}
 				},
-				customElement: host,
-				shadowRoot: target,
 				render(h) {
 					return h(defn, {
 						ref: 'inner',
 						props: this.props,
 						on: {...proxies},
-						attrs: {'data-vhname': defn.name},
+						attrs: {'data-vh': defn.name},
 					}, this.slotChildren)
 				},
-			} as any)
+			})
 
 			/* observe and assign slot content */
 			const observer = new MutationObserver(assignSlotChildren.bind(host))
@@ -86,7 +84,7 @@ function vueify(defn: ComponentDefn, props: any, shadowStyles?: string[]) {
 			/* mount the shadow root wrapper */
 			wrapper.$mount()
 
-			const prev = (target as any).querySelector(`[data-vhname='${defn.name}']`)
+			const prev = (target as any).querySelector(`[data-vh='${defn.name}']`)
 			if(prev) {
 				target.replaceChild(wrapper.$el, prev)
 			} else {
@@ -94,7 +92,11 @@ function vueify(defn: ComponentDefn, props: any, shadowStyles?: string[]) {
 			}
 
 			/* Add shadow DOM styling */
-			shadowStyles && html``.style(...shadowStyles)(host, target)
+			shadowStyles && html`
+				${host.debugVueHybrid && host._propKeys.map((key) => html`
+					<span><b>${key}</b> (${typeof host[key]}): ${JSON.stringify(host[key])}</span> <br/>
+				`)}
+			`.style(...shadowStyles)(host, target)
 		}
 	})
 }
@@ -118,11 +120,12 @@ export function define(defn: ComponentDefn, ...shadowStyles: string[]): Componen
 	}
 
 	const hybrid = {
+		debugVueHybrid: false,
 		_propKeys: Object.keys(props),
 		...props,
 		name: defn.name,
 		version: defn.version,
-		render: vueify(defn, props, shadowStyles),
+		render: vueify(defn, shadowStyles),
 	} as Hybrids<VueConvertedComponent>
 
 	hybridDefine(defn.name, hybrid)

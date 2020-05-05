@@ -50,6 +50,26 @@ Define and register a new web component using an existing Vue component. Define 
 define(defn: Object, ...shadowStyles?: string[]): Object
 ```
 
+### debug-vue-hybrid
+A boolean prop which is available for every vue-hybrid which renders the proxied props, their type, and their value.
+
+## Design Considerations
+- Avoid using the custom `model` property of Vue component definitions. When wrapped as a web component,
+the parent Vue component will not know to which event and prop it should bind v-model.
+Instead, design your component to use the traditional `value` prop and `input` event if possible.
+Or, if this is not possible, you may spell out the prop and event binding manually:
+
+```html
+<my-component :value="myBoundValue" @change="(value) => myBoundValue = value" />
+```
+
+- When passing props to vue-hybrids components from a vue component, you will need to pass props by _property_ instead of by attribute. To do this, add the `.prop` modifier to your props in vue templates.
+  - An issue with the `.prop` shorthand (`.`) is documented [here](https://github.com/vuejs/vue/issues/11375)
+
+```html
+<my-component :static-prop="staticValue" :dynamic-prop.prop="dynamicValue" />
+```
+
 #### defn
 A Vue component definition. Some special considerations around various options:
 

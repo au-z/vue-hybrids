@@ -9,7 +9,7 @@ const load = (test, ...use) => ({test, use, exclude: /node_modules/})
 module.exports = (env) => ({
 	mode: env.prod ? 'production' : 'development',
 	devtool: env.prod ? 'cheap-eval-source-map' : 'source-map',
-	entry: resolve('src/vue-hybrids.ts'),
+	entry: env.prod ? resolve('src/vue-hybrids.ts') : resolve('src/main.ts'),
 	output: {
 		path: resolve('dist'),
 		filename: env.prod ? `vue-hybrids.min.js` : `vue-hybrids.js`,
@@ -36,7 +36,7 @@ module.exports = (env) => ({
 		new VueLoaderPlugin(),
 		env.dev ? new HtmlWebpackPlugin({
 			template: resolve('build/template.html'),
-			inject: 'head',
+			inject: 'body',
 		}) : {apply: () => null},
 	],
 	devServer: {

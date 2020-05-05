@@ -37,6 +37,16 @@ export default define({
 </script>
 ```
 
+Finally, import the vue component to register it as a web component and use it in your appplication:
+
+```javascript
+import './path/to/my-vue-component.vue'
+```
+
+```html
+<my-vue-component :foo="fooProp" :bar="barProp" @ondelete="onDelete" @onCreate="onCreate" />
+```
+
 `define` will wrap your component in a Hybrids JS web component, register it, and proxy all your props and events.
 
 ![](https://imgur.com/7GjfBEO.png)

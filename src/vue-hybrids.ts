@@ -68,6 +68,7 @@ function vueify(defn: ComponentDefn, shadowStyles?: string[]) {
 	})
 
 	return render((host: any) => {
+		const props = mapPropsFromHost(host)
 
 		return (host: any, target) => {
 			const wrapper = new Vue({
@@ -76,7 +77,7 @@ function vueify(defn: ComponentDefn, shadowStyles?: string[]) {
 				shadowRoot: target,
 				data() {
 					return {
-						props: mapPropsFromHost(host),
+						props,
 						slotChildren: [],
 					}
 				},
@@ -90,7 +91,7 @@ function vueify(defn: ComponentDefn, shadowStyles?: string[]) {
 			} as any)
 
 			/* observe and assign slot content */
-			const observer = new MutationObserver(assignSlotChildren.bind(host))
+			const observer = new MutationObserver(() => assignSlotChildren.call(host, wrapper))
 			observer.observe(host, {childList: true, subtree: true, characterData: true, attributes: true})
 			assignSlotChildren.call(host, wrapper)
 

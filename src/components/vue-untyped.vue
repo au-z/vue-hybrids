@@ -1,7 +1,6 @@
 <template>
-	<div class="vue-slot">
-		<div class="title"><slot name="title"></slot></div>
-		<slot></slot>
+	<div class="vue-untyped">
+		{{typeof prop}} {{JSON.stringify(prop)}}
 	</div>
 </template>
 
@@ -9,6 +8,9 @@
 import {define} from '../vue-hybrids.ts'
 
 export default define({
-	name: 'vue-slot',
+	name: 'vue-untyped',
+	props: {
+		prop: {},
+	},
 })
 </script>

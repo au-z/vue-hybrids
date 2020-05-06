@@ -1,7 +1,6 @@
 <template>
-	<div class="vue-slot">
-		<div class="title"><slot name="title"></slot></div>
-		<slot></slot>
+	<div class="vue-event">
+		<button @click="() => $emit('custom', true)">Emit Event</button>
 	</div>
 </template>
 
@@ -9,6 +8,6 @@
 import {define} from '../vue-hybrids.ts'
 
 export default define({
-	name: 'vue-slot',
+	name: 'vue-event',
 })
 </script>

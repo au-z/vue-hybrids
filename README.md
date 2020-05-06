@@ -28,10 +28,6 @@ export default define({
     foo: {type: String},
     bar: {type: Number},
   },
-  events: {
-    'ondelete': true,
-    'oncreate': true,
-  },
   // ...
 })
 </script>
@@ -84,7 +80,6 @@ Or, if this is not possible, you may spell out the prop and event binding manual
 A Vue component definition. Some special considerations around various options:
 
 - `name`: This will be the name of the web component
-- `events`: This is not a part of the standard Vue single file component. However, vue-hybrids requires this to proxy any events you'd like to propagate from the shadow to light DOM
 
 #### shadowStyles
 An array of style sheet strings for the shadowDOM. vue-hybrids will ensure that these styles do not bleed into the light DOM.

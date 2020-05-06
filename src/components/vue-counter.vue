@@ -9,7 +9,6 @@ import {define} from '../vue-hybrids'
 
 export default define({
 	name: 'vue-counter',
-	events: {increment: true},
 	data: () => ({count: 0}),
 	methods: {
 		increment() {

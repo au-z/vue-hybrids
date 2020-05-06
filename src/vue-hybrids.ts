@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import {render, html, property, Hybrids, define as hybridDefine, dispatch} from 'hybrids'
-import {toVNodes} from './utils'
+import {injectHook, toVNodes} from './utils'
 
 interface ComponentDefn {
 	name?: string
@@ -37,6 +37,11 @@ function extractProps(propsDefn: string[] | Record<string, Prop>) {
 	return props
 }
 
+/**
+ * Copies child components into slots
+ * 'this' is the observed DOM node
+ * @param component the component to which slotted content is assigned
+ */
 function assignSlotChildren(component) {
 	component.slotChildren = Object.freeze(toVNodes(component.$createElement, this.childNodes))
 }
@@ -48,21 +53,30 @@ function mapPropsFromHost(host) {
 }
 
 function vueify(defn: ComponentDefn, shadowStyles?: string[]) {
-	return render((host: any) => {
-		const propsData = mapPropsFromHost(host)
 
-		/* define proxies for custom events */
-		const proxies = defn.events && Object.keys(defn.events).reduce((proxies, key) => {
-			proxies[key] = (detail) => dispatch(host, key, {detail, bubbles: true})
-			return proxies
-		}, {})
+	/* proxy $emit to host DOM element */
+	injectHook(defn, 'beforeCreate', function() {
+		const emit = this.$emit
+		this.$emit = (name, ...detail) => {
+			dispatch(this.$root.$options.customElement, name, {
+				detail: detail.length === 0 ? null : detail.length === 1 ? detail[0] : detail,
+				bubbles: true,
+				composed: true,
+			})
+			return emit.call(this, name, ...detail)
+		}
+	})
+
+	return render((host: any) => {
 
 		return (host: any, target) => {
 			const wrapper = new Vue({
 				name: 'shadow-root',
+				customElement: host,
+				shadowRoot: target,
 				data() {
 					return {
-						props: propsData,
+						props: mapPropsFromHost(host),
 						slotChildren: [],
 					}
 				},
@@ -70,15 +84,14 @@ function vueify(defn: ComponentDefn, shadowStyles?: string[]) {
 					return h(defn, {
 						ref: 'inner',
 						props: this.props,
-						on: {...proxies},
 						attrs: {'data-vh': defn.name},
 					}, this.slotChildren)
 				},
-			})
+			} as any)
 
 			/* observe and assign slot content */
 			const observer = new MutationObserver(assignSlotChildren.bind(host))
-			observer.observe(host, {childList: true, subtree: true, characterData: true})
+			observer.observe(host, {childList: true, subtree: true, characterData: true, attributes: true})
 			assignSlotChildren.call(host, wrapper)
 
 			/* mount the shadow root wrapper */

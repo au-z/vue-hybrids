@@ -9,8 +9,7 @@
 </template>
 
 <script>
-import {define} from '../../../index.js'
-console.log(define)
+import {define} from '../../vue-hybrids.ts'
 import TodoItem from './todo-item.vue'
 import styles from './vue-todo.styl'
 
@@ -19,10 +18,6 @@ export default define({
 	components: {TodoItem},
 	props: {
 		items: {type: Array, default: []},
-	},
-	events: {
-		added: true,
-		completed: true,
 	},
 	data() {
 		return {

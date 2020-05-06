@@ -1,11 +1,12 @@
 <template>
 	<div class="vue-props">
-		{{typeof bool}} {{JSON.stringify(bool)}}<br/>
-		{{typeof num}} {{JSON.stringify(num)}}<br/>
-		{{typeof str}} {{JSON.stringify(str)}}<br/>
-		{{typeof arr}} {{JSON.stringify(arr)}}<br/>
-		{{typeof obj}} {{JSON.stringify(obj)}}<br/>
-		{{typeof fn}} {{JSON.stringify(fn)}}<br/>
+		<b>bool:</b> ({{typeof bool}}) {{JSON.stringify(bool)}}<br/>
+		<b>num:</b> ({{typeof num}}) {{JSON.stringify(num)}}<br/>
+		<b>str:</b> ({{typeof str}}) {{JSON.stringify(str)}}<br/>
+		<b>arr:</b> ({{typeof arr}}) {{JSON.stringify(arr)}}<br/>
+		<b>obj:</b> ({{typeof obj}}) {{JSON.stringify(obj)}}<br/>
+		<b>fn:</b> ({{typeof fn}}) <button @click="fn">Invoke</button><br/>
+		<b>dyn:</b> ({{typeof dyn}}) {{JSON.stringify(dyn)}}<br/>
 	</div>
 </template>
 
@@ -22,6 +23,7 @@ export default define({
 		arr: {type: Array},
 		obj: {type: Object, default: () => ({foo: 'bar'})},
 		fn: {type: Function, default: () => 0},
+		dyn: {},
 	},
 }, shadowStyles)
 </script>

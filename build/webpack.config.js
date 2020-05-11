@@ -9,11 +9,16 @@ const load = (test, ...use) => ({test, use, exclude: /node_modules/})
 module.exports = (env) => ({
 	mode: env.prod ? 'production' : 'development',
 	devtool: env.prod ? 'cheap-eval-source-map' : 'source-map',
-	entry: env.prod ? resolve('src/vue-hybrids.ts') : resolve('src/main.ts'),
+	entry: env.prod ? {
+		'vue-hybrids': resolve('src/vue-hybrids.ts'),
+		'polyfill': resolve('src/polyfill/index.js'),
+	 } : {
+		 'app': resolve('src/main.ts'),
+	 },
 	output: {
 		path: resolve('dist'),
-		filename: env.prod ? `vue-hybrids.min.js` : `vue-hybrids.js`,
-		library: `vue-hybrids`,
+		filename: env.prod ? `[name].min.js` : `[name].js`,
+		library: `[name]`,
 		libraryTarget: 'umd',
 	},
 	module: {
@@ -27,7 +32,7 @@ module.exports = (env) => ({
 	resolve: {
 		extensions: ['.ts', '.js', '.json', '.styl', '.css'],
 		alias: {
-			'vue$': 'vue/dist/vue.esm.js',
+			'vue$': env.prod ? 'vue/dist/vue.runtime.min.js' : 'vue/dist/vue.esm.js',
 			'src': resolve('src'),
 			'style': resolve('src/style'),
 		},
@@ -40,7 +45,7 @@ module.exports = (env) => ({
 		}) : {apply: () => null},
 	],
 	devServer: {
-		port: 9001,
+		port: 9876,
 		historyApiFallback: true,
 	},
 })

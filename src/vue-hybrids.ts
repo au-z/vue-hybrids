@@ -3,20 +3,26 @@ import {render, html, property, Hybrids, define as hybridDefine, dispatch} from 
 import {injectHook, toVNodes} from './utils'
 
 interface ComponentDefn {
-	name?: string
+	name: string
 	props?: string[] | Record<string, Prop>
 	[key: string]: any
 }
 
 interface Prop {
-	type: Function,
-	required: Boolean,
-	default: any,
+	type?: Function,
+	required?: Boolean,
+	default?: any,
 	[key: string]: any
 }
 
-interface VueConvertedComponent extends HTMLElement {
+export interface CustomElement extends HTMLElement {
+	debugVueHybrid: Boolean
+	_propKeys?: string[]
 	[key: string]: any
+}
+
+export interface VueElement extends HTMLElement {
+	__vue__: any
 }
 
 function extractProps(propsDefn: string[] | Record<string, Prop>) {
@@ -39,8 +45,8 @@ function extractProps(propsDefn: string[] | Record<string, Prop>) {
 
 /**
  * Copies child components into slots
- * 'this' is the observed DOM node
- * @param component the component to which slotted content is assigned
+ * 'this' is the observed host node
+ * @param component the component to which slotted content are assigned
  */
 function assignSlotChildren(component) {
 	component.slotChildren = Object.freeze(toVNodes(component.$createElement, this.childNodes))
@@ -48,7 +54,7 @@ function assignSlotChildren(component) {
 
 function mapPropsFromHost(host) {
 	const propsData = {}
-	host._propKeys.forEach((key) => propsData[key] = host[key])
+	host._propKeys?.forEach((key) => propsData[key] = host[key])
 	return propsData
 }
 
@@ -67,20 +73,16 @@ function vueify(defn: ComponentDefn, shadowStyles?: string[]) {
 		}
 	})
 
-	return render((host: any) => {
+	return render((host: CustomElement) => {
+		/* Must take place in the render function so that hybrids will re-render on cache access */
 		const props = mapPropsFromHost(host)
 
-		return (host: any, target) => {
+		return (host: CustomElement, target: HTMLElement | ShadowRoot | Text) => {
 			const wrapper = new Vue({
 				name: 'shadow-root',
-				customElement: host,
+				customElement: host, // dispatch host for proxied events
 				shadowRoot: target,
-				data() {
-					return {
-						props,
-						slotChildren: [],
-					}
-				},
+				data: () => ({props, slotChildren: []}),
 				render(h) {
 					return h(defn, {
 						ref: 'inner',
@@ -115,7 +117,11 @@ function vueify(defn: ComponentDefn, shadowStyles?: string[]) {
 	})
 }
 
-export function define(defn: ComponentDefn, ...shadowStyles: string[]): ComponentDefn {
+export function wrap(defn: ComponentDefn, shadowStyles?: string[]): Hybrids<CustomElement> {
+	if(!defn.name) {
+		throw new Error(`[vue-hybrids] wrapped component requires a 'name' property.`)
+	}
+
 	let props = {}
 
 	/* map traditional props */
@@ -133,16 +139,17 @@ export function define(defn: ComponentDefn, ...shadowStyles: string[]): Componen
 		props = {...props, ...extractProps(defn.extend.props)}
 	}
 
-	const hybrid = {
+	return {
 		debugVueHybrid: false,
 		_propKeys: Object.keys(props),
 		...props,
 		name: defn.name,
 		version: defn.version,
 		render: vueify(defn, shadowStyles),
-	} as Hybrids<VueConvertedComponent>
+	} as Hybrids<CustomElement>
+}
 
-	hybridDefine(defn.name, hybrid)
-
+export function define(defn: ComponentDefn, ...shadowStyles: string[]): ComponentDefn {
+	hybridDefine(defn.name, wrap(defn, shadowStyles))
 	return defn
 }

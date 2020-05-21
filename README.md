@@ -119,10 +119,11 @@ Normally, one would include the following before any of their app code:
 import '@webcomponents/webcomponentsjs`
 ```
 
-However, if you are using @babel/preset-env or core-js with the `useBuiltIns: 'usage'` flag, you may have difficulty with
+However, if you are using @babel/preset-env and/or core-js, you may have difficulty with
 overlapping polyfills.
 
-Here is a link to a [minimal reproduction](https://github.com/bschlenk/ie11-corejs-stack-overflow-repro)
+- [minimal reproduction](https://github.com/bschlenk/ie11-corejs-stack-overflow-repro)
+- [issue on Github](https://github.com/webcomponents/polyfills/issues/43)
 
 `vue-hybrids` provides a fix if your build falls into this scenario. Replace your @webcomponents import statement with:
 
@@ -138,7 +139,12 @@ const nonce = Symbol('I_DO_NOTHING')
 import '@webcomponents/webcomponentsjs'
 ```
 
-**NOTE:** There are a number of caveats you may still encounter on your way to supporting legacy browsers. Please refer to the additional documentation [here](/src/polyfill/README.md)
+As a last resort, I've included a build of the [@webcomponents/webcomponentsjs](https://github.com/webcomponents/polyfills)
+package which disincludes the Symbol polyfill. The package build outputs are generated from a fork ([auzmartist/polyfills](https://github.com/auzmartist/polyfills)) and can be used like so:
+
+```js
+import 'vue-hybrids/dist/legacy-polyfill.min.js' // 1,127 KB
+```
 
 ----
 

@@ -11,7 +11,8 @@ module.exports = (env) => ({
 	devtool: env.prod ? 'cheap-eval-source-map' : 'source-map',
 	entry: env.prod ? {
 		'vue-hybrids': resolve('src/vue-hybrids.ts'),
-		'polyfill': resolve('src/polyfill/index.js'),
+		'polyfill': resolve('src/polyfill/polyfill.js'),
+		'legacy-polyfill': resolve('src/polyfill/legacy-polyfill.js'),
 	 } : {
 		 'app': resolve('src/main.ts'),
 	 },

@@ -21,7 +21,7 @@ export function callHooks(vm, hook) {
  *
  * Further Explanation: https://github.com/vuejs/vue-web-component-wrapper/issues/49
  * The effect of this is copied DOM nodes which does not preserve any event listeners.
- * This new implementation creates named and default native slots for slotted content and allows the browser.
+ * This new implementation creates named and default native slots for slotted content.
  *
  * @param h hyperscript createElement fn
  * @param children component childNodes

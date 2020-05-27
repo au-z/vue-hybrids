@@ -4,11 +4,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const resolve = (rel) => path.resolve(__dirname, '..', rel)
 
-const load = (test, ...use) => ({test, use, exclude: /node_modules/})
+const load = (test, ...use) => ({test, use, exclude: /node_modules|dist/})
 
 module.exports = (env) => ({
 	mode: env.prod ? 'production' : 'development',
-	devtool: env.prod ? 'cheap-eval-source-map' : 'source-map',
+	devtool: env.prod ? 'none' : 'source-map',
 	entry: env.prod ? {
 		'vue-hybrids': resolve('src/vue-hybrids.ts'),
 		'polyfill': resolve('src/polyfill/polyfill.js'),

@@ -15,13 +15,5 @@
 			"DOM",
 			"ESNext",
 		],
-		"paths": {
-			"src/*": ["src/*"],
-			"style/*": ["style/*"],
-		}
 	},
-	"include": [
-		"node_modules",
-		"src/**/*.ts"
-	],
 }

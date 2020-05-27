@@ -53,19 +53,43 @@ import './path/to/my-vue-component.vue'
 Define and register a new web component using an existing Vue component. Define returns the `defn` argument.
 
 ```typescript
-define(defn: Object, ...shadowStyles?: string[]): void
+define(defn: Object, options: DefineOptions): void
 ```
 
 #### defn
 A Vue component definition. Some special considerations around various options:
 
-- `name`: This will be the name of the web component
+- `name`: This will be the name of the web component. By standard, web components must have a hyphen in their name.
 
-#### shadowStyles
-An array of style sheet strings for the shadowDOM. vue-hybrids will ensure that these styles do not bleed into the light DOM.
+#### options: DefineOptions
+Various options for the component and/or component wrapper
+
+- `vue?: Vue`
+
+  An instance of the Vue constructor. This can be helpful for components which need to inherit functionality from plugins.
+
+  ```js
+  import {define} from 'vue-hybrids'
+  import vue from 'vue'
+  import Vuex from 'vuex'
+  vue.use(Vuex)
+
+  define({name: 'my-store', /* ... */}, {vue}) // the component has access to this.$store
+  ```
+
+- `styles?: string | string[]`
+
+  Style sheet strings for the shadowDOM. vue-hybrids will ensure that these styles do not bleed into the light DOM.
+
+  ```js
+  import {define} from 'vue-hybrids'
+  import globalStyles from './my-global-styles.styl'
+  import styles from './my-styles.styl'
+
+  define({name: 'my-styled-component', /* ... */}, {styles: [globalStyles, styles]})
+  ```
 
 If you are using the typical vue-loader toolchain to bundle styles in conjunction with vue-hybrids, SFC `<style>` tags will still be mounted in the light DOM and CSS selection into the shadow DOM will be restricted. Please avoid this in order to keep your web components side-effect free.
-
 
 ### `wrap`
 Wrap a vue component as a Hybrids component. The component can be defined later with a different name using the hybrids `define` function.
@@ -74,19 +98,18 @@ Wrap a vue component as a Hybrids component. The component can be defined later 
 import {wrap} from 'vue-hybrids'
 import {define} from 'hybrids'
 
-const hybrid: Hybrids<CustomElement> = wrap(defn: Object, ...shadowStyles?: string[])
+const hybrid: Hybrids<CustomElement> = wrap(defn: Object, options: DefineOptions)
 
 // ...
 
 define('my-element-name', hybrid)
 ```
 
-### debug-vue-hybrid
+### `vh-debug`
 A boolean prop which is available for every vue-hybrid which renders the proxied props, their type, and their value.
 
-
 ```html
-<my-component :prop="foo" debug-vue-hybrid/>
+<my-component :prop="foo" vh-debug/>
 ```
 
 ----
@@ -156,7 +179,12 @@ vue-hybrids is compatible with vue dev tools. You can still inspect your mounted
 ## Development
 Contributions welcome!
 
-## Active Issues
-`vue-hybrids` is quite young and a number of small issues are present.
+```bash
+git clone git@github.com:auzmartist/vue-hybrids.git
 
-- hot reloading is broken for shadowStyles editing
+cd vue-hybrids
+
+npm install
+
+npm run dev
+```

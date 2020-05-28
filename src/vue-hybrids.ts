@@ -59,6 +59,14 @@ export function wrap(defn: ComponentDefn, {vue, styles}: DefineOptions): Hybrids
 }
 
 export function define(defn: ComponentDefn, options: DefineOptions = {}): ComponentDefn {
-	hybridDefine(defn.name, wrap(defn, options))
+	try {
+		hybridDefine(defn.name, wrap(defn, options))
+	} catch (err) {
+		if(err.message.indexOf('already defined') >= 0) {
+			console.warn(`Element ${defn.name} already defined.`)
+		} else {
+			throw err
+		}
+	}
 	return defn
 }

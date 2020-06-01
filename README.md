@@ -105,12 +105,19 @@ const hybrid: Hybrids<CustomElement> = wrap(defn: Object, options: DefineOptions
 define('my-element-name', hybrid)
 ```
 
+## Attributes
+> These attributes are available on all vue-hybrids components
+
 ### `vh-debug`
 A boolean prop which is available for every vue-hybrid which renders the proxied props, their type, and their value.
 
 ```html
 <my-component :prop="foo" vh-debug/>
 ```
+
+### `vh-key`
+A string key functioning much like `key` in Vue. If the value of `vh-key` changes, vue-hybrids will refresh the encapsulated Vue component.
+This will execute all of its lifecycle methods again.
 
 ----
 

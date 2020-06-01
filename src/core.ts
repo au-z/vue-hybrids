@@ -57,38 +57,49 @@ export function vueify(defn: ComponentDefn, shadowStyles?: string[], vue: any) {
 	return render((host: CustomElement) => {
 		/* Must take place in the render function so that hybrids will re-render on cache access */
 		const props = mapPropsFromHost(host)
+		const force = host._force
 
 		return (host: CustomElement, target: HTMLElement | ShadowRoot | Text) => {
-			const shadowRoot = {
-				name: 'shadow-root',
-				customElement: host, // dispatch host for proxied events
-				shadowRoot: target,
-				data: () => ({props, slotChildren: []}),
-				render(h) {
-					return h(defn, {
-						ref: 'inner',
-						props: this.props,
-						attrs: {'data-vh': defn.name},
-					}, this.slotChildren)
-				},
-			} as any
-
-			const wrapper = (!!vue && typeof vue === 'function') ?
-				new vue(shadowRoot) : new Vue(shadowRoot)
-
-			/* observe and assign slot content */
-			const observer = new MutationObserver(() => assignSlotChildren.call(host, wrapper))
-			observer.observe(host, {childList: true, subtree: true, characterData: true, attributes: true})
-			assignSlotChildren.call(host, wrapper)
-
-			/* mount the shadow root wrapper */
-			wrapper.$mount()
-
+			let wrapper
 			const prev = (target as any).querySelector(`[data-vh='${defn.name}']`)
-			if(prev) {
-				target.replaceChild(wrapper.$el, prev)
+
+			if(!prev || host._force) {
+				host._force = false // close latch
+
+				const shadowRoot = {
+					name: 'shadow-root',
+					customElement: host, // dispatch host for proxied events
+					shadowRoot: target,
+					data: () => ({props, slotChildren: []}),
+					render(h) {
+						return h(defn, {
+							ref: 'inner',
+							props: this.props,
+							attrs: {'data-vh': defn.name},
+						}, this.slotChildren)
+					},
+				} as any
+
+				wrapper = (!!vue && typeof vue === 'function') ? new vue(shadowRoot) : new Vue(shadowRoot)
+
+				/* observe and assign slot content */
+				const observer = new MutationObserver(() => assignSlotChildren.call(host, wrapper))
+				observer.observe(host, {childList: true, subtree: true, characterData: true, attributes: true})
+				assignSlotChildren.call(host, wrapper)
+
+				/* mount the shadow root wrapper */
+				wrapper.$mount()
+
+				if(prev) {
+					target.replaceChild(wrapper.$el, prev)
+				} else {
+					target.appendChild(wrapper.$el)
+				}
+
 			} else {
-				target.appendChild(wrapper.$el)
+				/* map new hybrids props to vue element and force an update */
+				prev.__vue__._props = props
+				prev.__vue__.$forceUpdate()
 			}
 
 			/* Add shadow DOM styling */

@@ -50,6 +50,16 @@ export function wrap(defn: ComponentDefn, {vue, styles}: DefineOptions): Hybrids
 
 	return {
 		vhDebug: false,
+		vhKey: {
+			...property(''),
+			observe: (host, val, last) => {
+				if(val !== last && last !== undefined) {
+					host._force = true
+					host.vhDebug && console.log('[vue-hybrids] Forcing component refresh.')
+				}
+			},
+		},
+		_force: false,
 		_propKeys: Object.keys(props),
 		...props,
 		name: defn.name,

@@ -5,9 +5,10 @@
  * This should ensure IE11 support
  */
 const a = Symbol('3523')
-import '../lib/webcomponentsjs/webcomponents-bundle.js'
+import '../dist/legacy-polyfill.min.js'
 
 import Vue from 'vue'
+
 /**
  * On IE11, Vue will not recognize a few custom elements.
  * This adds them to be ignored, removing any console warnings.

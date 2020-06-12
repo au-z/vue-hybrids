@@ -89,6 +89,8 @@ export function vueify(defn: ComponentDefn, shadowStyles?: string[], vue: any) {
 
 				/* mount the shadow root wrapper */
 				wrapper.$mount()
+				/* ensure future forceUpdate calls are reactive */
+				wrapper.$forceUpdate()
 
 				if(prev) {
 					target.replaceChild(wrapper.$el, prev)

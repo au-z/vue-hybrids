@@ -100,7 +100,7 @@ export function vueify(defn: ComponentDefn, shadowStyles?: string[], vue: any) {
 
 			} else {
 				/* map new hybrids props to vue element and force an update */
-				prev.__vue__._props = props
+				Object.entries(props).forEach(([key, value]) => prev.__vue__._props[key] = value)
 				prev.__vue__.$forceUpdate()
 			}
 

@@ -25,5 +25,5 @@ export default define({
 		fn: {type: Function, default: () => 0},
 		dyn: {},
 	},
-}, shadowStyles)
+}, {styles: shadowStyles})
 </script>

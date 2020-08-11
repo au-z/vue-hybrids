@@ -131,6 +131,10 @@ When passing props to vue-hybrids components from a vue component, you will need
 <my-component :static="staticValue" :dynamic.prop="dynamicValue" />
 ```
 
+#### Converting Vue Props
+
+It's considered best practice to define types in your Vue component props. If no type is provided the wrapping hybrids component will assume a string, like other HTML attributes.
+
 ### Vue Functionality
 Avoid using the custom `model` property of Vue component definitions. When wrapped as a web component,
 the parent Vue component will not know to which event and prop it should bind v-model.

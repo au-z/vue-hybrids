@@ -10,7 +10,8 @@ function extractProps(propsDefn: string[] | Record<string, Prop>) {
 	const props = {}
 	if(Array.isArray(propsDefn)) {
 		propsDefn.forEach((key) => {
-			props[key] = property(null)
+			// Assume that non-typed props are strings
+			props[key] = property('')
 		})
 	} else if(typeof propsDefn === 'object') {
 		Object.entries(propsDefn).forEach(([key, value]) => {

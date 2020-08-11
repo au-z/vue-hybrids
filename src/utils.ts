@@ -35,7 +35,7 @@ export function toVNodes(h, children, scopeId?) {
 		const slotName = children[i].getAttribute && children[i].getAttribute('slot');
 		if(slotName && !named[slotName]) {
 			named[slotName] = createSlot(h, scopeId, slotName)
-		} else if (!name && !unnamed) {
+		} else if (!slotName && !unnamed) {
 			unnamed = createSlot(h, scopeId)
 		}
 	}
@@ -54,7 +54,7 @@ export function toVNodes(h, children, scopeId?) {
  * @return the <slot> element
  */
 function createSlot(h, scopeId?, name?) {
-	const data: any = {attrs: { [scopeId]: ''}}
+	const data: any = {attrs: scopeId ? {[scopeId]: ''} : {}}
 	if(name) {
 		data.slot = name
 		data.attrs.name = name
@@ -62,7 +62,7 @@ function createSlot(h, scopeId?, name?) {
 
 	let slot = h('slot', data)
 	if(!!(window as any).ShadyDOM) {
-		slot = h('shady-slot', {attrs: {[scopeId]: ''}}, [slot])
+		slot = h('shady-slot', {attrs: scopeId ? {[scopeId]: ''} : {}}, [slot])
 	}
 
 	return slot
